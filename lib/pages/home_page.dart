@@ -40,7 +40,7 @@ class HomePage extends StatelessWidget {
           children: <Widget>[
             ElevatedButton(
               onPressed: () {
-                Navigator.pushNamed(context, '/lobby');
+                Navigator.pushNamed(context, '/game');
               },
               child: const Text('Create a new game'),
             ),

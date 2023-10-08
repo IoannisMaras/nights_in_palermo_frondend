@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nights_in_palermo/pages/game_page.dart';
 import 'package:nights_in_palermo/pages/home_page.dart';
 import 'package:nights_in_palermo/pages/lobby_page.dart';
 import 'package:nights_in_palermo/providers/websocket_notifier.dart';
@@ -43,6 +44,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/homepage': (context) => const HomePage(),
         '/lobby': (context) => const LobbyPage(),
+        '/game': (context) => const GamePage(),
       },
       home: const HomePage(),
     );

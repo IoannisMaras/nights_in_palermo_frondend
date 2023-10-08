@@ -125,12 +125,12 @@ class GamePage extends StatelessWidget {
         secondaryIconsList: const [
           Icons.supervised_user_circle,
           Icons.pan_tool,
-          Icons.history,
+          Icons.note_add,
         ],
         secondaryIconsText: const [
           "Show Role",
           "Use Ability",
-          "Show History",
+          "Kepp Notes",
           // "cut",
         ],
         secondaryIconsOnPress: [
