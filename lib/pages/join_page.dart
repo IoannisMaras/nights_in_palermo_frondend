@@ -1,37 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:giffy_dialog/giffy_dialog.dart';
-import 'package:nights_in_palermo/providers/websocket_notifier.dart';
-import 'package:provider/provider.dart';
-import 'package:uuid/uuid.dart';
 
-class LobbyPage extends StatelessWidget {
-  final String? gameId;
-
-  const LobbyPage({Key? key, this.gameId}) : super(key: key);
+class JoinPage extends StatelessWidget {
+  const JoinPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    const uuid = Uuid();
-    String finalGameId = gameId ?? uuid.v4();
-
-    // WidgetsBinding.instance.addPostFrameCallback((_) {
-    //   String url = "ws://10.0.2.2::8000/ws/game/$finalGameId/Lerex";
-    //   print(url);
-    //   Provider.of<WebSocketNotifier>(context, listen: false).connect(url);
-    // });
-
-    String url = "ws://10.0.2.2:8000/ws/game/$finalGameId/Lerex/";
-
-    // final websocket = context.read<WebSocketNotifier>();
-
-    // Future<bool> isConnected = websocket.connect(url);
-
-    // if (!value.isConnected) {
-    //   // WidgetsBinding.instance.addPostFrameCallback((_) {
-    //   //   Navigator.pop(context);
-    //   // });
-    // }
-
     return Scaffold(
       appBar: AppBar(
         // TRY THIS: Try changing the color here to a specific color (to
@@ -125,39 +99,34 @@ class LobbyPage extends StatelessWidget {
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
       ),
-      body: FutureBuilder<bool>(
-        future: context
-            .read<WebSocketNotifier>()
-            .connect(url), // a previously-obtained Future<String> or null
-        builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-                child: Stack(
-              alignment: Alignment.center,
-              children: [
-                Text("Connecting to server..."),
-                SizedBox(
-                    width: 200,
-                    height: 200,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 15,
-                    ))
-              ],
-            ));
-          } else if (snapshot.hasError) {
-            // WidgetsBinding.instance.addPostFrameCallback((_) {
-            //   Navigator.pop(context);
-            // });
-            return Container(); // return an empty container if you wish to pop immediately
-          } else if (snapshot.hasData && snapshot.data == true) {
-            return Text("Connected");
-          } else {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              Navigator.pop(context);
-            });
-            return Text("Unknown state");
-          }
-        },
+      body: const Center(
+        // Center is a layout widget. It takes a single child and positions it
+        // in the middle of the parent.
+        child: Column(
+          // Column is also a layout widget. It takes a list of children and
+          // arranges them vertically. By default, it sizes itself to fit its
+          // children horizontally, and tries to be as tall as its parent.
+          //
+          // Column has various properties to control how it sizes itself and
+          // how it positions its children. Here we use mainAxisAlignment to
+          // center the children vertically; the main axis here is the vertical
+          // axis because Columns are vertical (the cross axis would be
+          // horizontal).
+          //
+          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
+          // action in the IDE, or press "p" in the console), to see the
+          // wireframe for each widget.
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            
+            // ElevatedButton(
+            //   onPressed: () {
+            //     Navigator.pushNamed(context, '/second');
+            //   },
+            //   child: const Text('Go to second page'),
+            // ),
+          ],
+        ),
       ),
       // This trailing comma makes auto-formatting nicer for build methods.
     );

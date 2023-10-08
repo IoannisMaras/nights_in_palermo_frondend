@@ -6,29 +6,28 @@ import 'package:flutter/material.dart';
 
 class WebSocketNotifier extends ChangeNotifier {
   WebSocket? _webSocket;
-  bool isConnecting = false;
   bool isConnected = false;
   String latestMessage = "No message received.";
 
-  void connect(String url) async {
-    isConnecting = true;
-    notifyListeners();
+  Future<bool> connect(String url) async {
+    _webSocket = await WebSocket.connect(url);
+    _webSocket!.listen(
+      _handleMessage,
+      onDone: _handleDone,
+      onError: _handleError,
+    );
+    isConnected = true;
 
-    try {
-      _webSocket = await WebSocket.connect(url);
-      isConnected = true;
-      isConnecting = false;
-      // ... (other code)
-    } catch (e) {
-      isConnecting = false;
-      print("Could not connect to WebSocket: $e");
-    }
+    // ... (other code)
 
     notifyListeners();
+    await Future.delayed(const Duration(seconds: 2));
+    return isConnected;
   }
 
   void _handleMessage(dynamic message) {
     latestMessage = message.toString();
+    print(latestMessage);
     notifyListeners();
   }
 

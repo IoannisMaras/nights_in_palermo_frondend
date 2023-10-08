@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nights_in_palermo/pages/lobby_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -40,7 +41,12 @@ class HomePage extends StatelessWidget {
           children: <Widget>[
             ElevatedButton(
               onPressed: () {
-                Navigator.pushNamed(context, '/game');
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const LobbyPage(
+                              gameId: null,
+                            )));
               },
               child: const Text('Create a new game'),
             ),
