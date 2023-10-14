@@ -150,7 +150,20 @@ class LobbyPage extends StatelessWidget {
             // });
             return Container(); // return an empty container if you wish to pop immediately
           } else if (snapshot.hasData && snapshot.data == true) {
-            return Text("Connected");
+            return Selector<WebSocketNotifier, List<Player>>(
+                builder: (context, count, child) {
+                  return ListView(
+                    children: count
+                        .map((player) => ListTile(
+                              title: Text(player.username),
+                              //admin as subtitle if it is the first player
+                              subtitle: Text(count[0] == player ? 'admin' : ''),
+                            ))
+                        .toList(),
+                  );
+                },
+                selector: (context, counterModel) =>
+                    counterModel.gameState.players);
           } else {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               Navigator.pop(context);
