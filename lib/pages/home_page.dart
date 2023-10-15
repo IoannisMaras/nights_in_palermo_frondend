@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:giffy_dialog/giffy_dialog.dart';
 import 'package:nights_in_palermo/pages/lobby_page.dart';
+import 'package:nights_in_palermo/providers/username_provider.dart';
+import 'package:provider/provider.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    void joinGame() {
-      showDialog(
+    void joinGame() async {
+      String? gameId = await showDialog(
         context: context,
         builder: (BuildContext context) {
+          String? gameID = '';
           return GestureDetector(
             onTap: () => FocusScope.of(context)
                 .requestFocus(FocusNode()), // Close keyboard on tap outside
@@ -29,13 +32,16 @@ class HomePage extends StatelessWidget {
                         'Paste Room ID here:',
                         textAlign: TextAlign.center,
                       ),
-                      const SizedBox(
+                      SizedBox(
                         width: 200,
                         child: TextField(
-                          decoration: InputDecoration(
+                          decoration: const InputDecoration(
                             border: OutlineInputBorder(),
                             labelText: 'Room ID',
                           ),
+                          onChanged: (value) {
+                            gameID = value;
+                          },
                         ),
                       ),
                       const SizedBox(height: 20.0),
@@ -54,11 +60,11 @@ class HomePage extends StatelessWidget {
                   ),
                   actions: [
                     TextButton(
-                      onPressed: () => Navigator.pop(context, 'CANCEL'),
+                      onPressed: () => Navigator.pop(context, null),
                       child: const Text('CANCEL'),
                     ),
                     TextButton(
-                      onPressed: () => Navigator.pop(context, 'OK'),
+                      onPressed: () => Navigator.pop(context, gameID),
                       child: const Text('JOIN GAME'),
                     ),
                   ],
@@ -68,6 +74,17 @@ class HomePage extends StatelessWidget {
           );
         },
       );
+
+      if (gameId != null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => LobbyPage(
+                        gameId: gameId,
+                      )));
+        });
+      }
     }
 
     return Scaffold(
@@ -94,20 +111,6 @@ class HomePage extends StatelessWidget {
           children: <Widget>[
             // const SizedBox(height: 20.0),
             //add a container wiht curved edges covering the full width of the screen
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Container(
-                //width: MediaQuery.of(context).size.width,
-                height: 300,
-                decoration: const BoxDecoration(
-                  image: DecorationImage(
-                    image: AssetImage("assets/images/homepage2.jpg"),
-                    fit: BoxFit.cover,
-                  ),
-                  borderRadius: BorderRadius.all(Radius.circular(20)),
-                ),
-              ),
-            ),
 
             const SizedBox(height: 20.0),
             const Text(
@@ -120,12 +123,31 @@ class HomePage extends StatelessWidget {
               style: TextStyle(fontSize: 20),
             ),
             const SizedBox(height: 20.0),
-            const SizedBox(
+            SizedBox(
               width: 200,
               child: TextField(
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                   labelText: 'Name',
+                ),
+                onChanged: (value) {
+                  Provider.of<UsernameProvider>(context, listen: false)
+                      .setUsername(value);
+                },
+              ),
+            ),
+            const SizedBox(height: 20.0),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Container(
+                //width: MediaQuery.of(context).size.width,
+                height: 300,
+                decoration: const BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage("assets/images/homepage2.jpg"),
+                    fit: BoxFit.cover,
+                  ),
+                  borderRadius: BorderRadius.all(Radius.circular(20)),
                 ),
               ),
             ),

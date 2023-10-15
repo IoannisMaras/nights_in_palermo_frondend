@@ -62,12 +62,15 @@ class WebSocketNotifier extends ChangeNotifier {
   }
 
   void _handleDone() {
+    int? code = _webSocket!.closeCode;
+    print(code);
     isConnected = false;
     notifyListeners();
   }
 
   void _handleError(dynamic error) {
     print("WebSocket error: $error");
+
     isConnected = false;
     notifyListeners();
   }

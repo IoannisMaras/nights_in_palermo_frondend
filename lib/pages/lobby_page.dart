@@ -1,5 +1,9 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:giffy_dialog/giffy_dialog.dart';
+import 'package:nights_in_palermo/providers/username_provider.dart';
 import 'package:nights_in_palermo/providers/websocket_notifier.dart';
 import 'package:nights_in_palermo/widgets/global/connecting_spinner.dart';
 import 'package:provider/provider.dart';
@@ -15,33 +19,37 @@ class LobbyPage extends StatelessWidget {
   Widget build(BuildContext context) {
     const uuid = Uuid();
     String finalGameId = gameId ?? uuid.v4();
-    String tempGameId = '6a64fcb0-75a7-4528-a69e-791363aca82c';
+    print(finalGameId);
+    String username =
+        Provider.of<UsernameProvider>(context, listen: false).username;
 
     String url = '';
-    if (kIsWeb) {
-      url = "ws://10.0.2.2:8000/ws/game/$tempGameId/Lerex/";
+    if (!kIsWeb) {
+      url = "ws://10.0.2.2:8000/ws/game/$finalGameId/$username/";
     } else {
-      url = "ws://localhost:8000/ws/game/$tempGameId/Lerex/";
+      url = "ws://localhost:8000/ws/game/$finalGameId/Lerex/";
     }
+    url =
+        "ws://10.0.2.2:8000/ws/game/6a64fcb0-75a7-4528-a69e-791363aca82c/$username/";
 
-    void showErrorBottomSheet(BuildContext context) {
+    void showErrorBottomSheet(BuildContext context, String message) {
       showModalBottomSheet(
         context: context,
         builder: (BuildContext context) {
           return Container(
             padding: const EdgeInsets.all(20.0),
-            child: const Row(
+            child: Row(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
-                Icon(
+                const Icon(
                   Icons.error,
                   color: Colors.red,
                   size: 40.0,
                 ),
-                SizedBox(height: 10.0),
+                const SizedBox(height: 10.0),
                 Text(
-                  'An error occurred!',
-                  style: TextStyle(fontSize: 18),
+                  message,
+                  style: const TextStyle(fontSize: 18),
                 ),
               ],
             ),
@@ -72,6 +80,8 @@ class LobbyPage extends StatelessWidget {
       if (areYouSure == true) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           Navigator.pop(context);
+          //dicsconnect from the websocket
+          context.read<WebSocketNotifier>().disconnect();
         });
       }
     }
@@ -158,10 +168,31 @@ class LobbyPage extends StatelessWidget {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const ConnectingSpinner();
             } else if (snapshot.hasError) {
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                Navigator.pop(context);
-                showErrorBottomSheet(context);
-              });
+              if (snapshot.error is TimeoutException) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  Navigator.pop(context);
+                  showErrorBottomSheet(context, "Connection timed out");
+                });
+              } else if (snapshot.error is SocketException) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  Navigator.pop(context);
+                  showErrorBottomSheet(context, "Connection refused");
+                });
+              } else if (snapshot.error is WebSocketException) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  Navigator.pop(context);
+                  showErrorBottomSheet(context, "Username already taken");
+                });
+              } else {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  Navigator.pop(context);
+                  showErrorBottomSheet(context, "Unknown error");
+                });
+              }
+              // WidgetsBinding.instance.addPostFrameCallback((_) {
+              //   Navigator.pop(context);
+              //   showErrorBottomSheet(context,'test');
+              // });
               //show a bottom sheet with the error
 
               return const Center(
@@ -187,7 +218,7 @@ class LobbyPage extends StatelessWidget {
             } else {
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 Navigator.pop(context);
-                showErrorBottomSheet(context);
+                showErrorBottomSheet(context, "Unknown error");
               });
               return const Center(child: Text("Unknown state"));
             }

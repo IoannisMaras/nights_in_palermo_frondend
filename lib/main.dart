@@ -2,12 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:nights_in_palermo/pages/game_page.dart';
 import 'package:nights_in_palermo/pages/home_page.dart';
 import 'package:nights_in_palermo/pages/lobby_page.dart';
+import 'package:nights_in_palermo/providers/username_provider.dart';
 import 'package:nights_in_palermo/providers/websocket_notifier.dart';
 import 'package:provider/provider.dart';
 
 void main() {
-  runApp(ChangeNotifierProvider(
-    create: (_) => WebSocketNotifier(),
+  runApp(MultiProvider(
+    providers: [
+      ChangeNotifierProvider(create: (_) => WebSocketNotifier()),
+      ChangeNotifierProvider(create: (context) => UsernameProvider()),
+    ],
     child: const MyApp(),
   ));
 }
