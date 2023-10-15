@@ -41,13 +41,8 @@ class LobbyPage extends StatelessWidget {
                 SizedBox(height: 10.0),
                 Text(
                   'An error occurred!',
-                  style: TextStyle(
-                    fontSize: 18.0,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 18),
                 ),
-                SizedBox(height: 10.0),
-                Text(' -Please try again later.'),
               ],
             ),
           );

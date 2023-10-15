@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:giffy_dialog/giffy_dialog.dart';
 import 'package:nights_in_palermo/pages/lobby_page.dart';
 
 class HomePage extends StatelessWidget {
@@ -6,7 +7,71 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    void joinGame() {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return GestureDetector(
+            onTap: () => FocusScope.of(context)
+                .requestFocus(FocusNode()), // Close keyboard on tap outside
+            child: Center(
+              child: SingleChildScrollView(
+                child: GiffyDialog.image(
+                  Image.asset('assets/images/join_game.jfif'),
+                  title: const Text(
+                    'Joining a game',
+                    textAlign: TextAlign.center,
+                  ),
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Text(
+                        'Paste Room ID here:',
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(
+                        width: 200,
+                        child: TextField(
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(),
+                            labelText: 'Room ID',
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 20.0),
+                      ElevatedButton(
+                        onPressed: () {},
+                        child: const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text('Or Scan QR code  '),
+                            Icon(Icons.photo_camera),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, 'CANCEL'),
+                      child: const Text('CANCEL'),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, 'OK'),
+                      child: const Text('JOIN GAME'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+      );
+    }
+
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         // TRY THIS: Try changing the color here to a specific color (to
         // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
@@ -27,6 +92,24 @@ class HomePage extends StatelessWidget {
           //textfeild to add name
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            // const SizedBox(height: 20.0),
+            //add a container wiht curved edges covering the full width of the screen
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Container(
+                //width: MediaQuery.of(context).size.width,
+                height: 300,
+                decoration: const BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage("assets/images/homepage2.jpg"),
+                    fit: BoxFit.cover,
+                  ),
+                  borderRadius: BorderRadius.all(Radius.circular(20)),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 20.0),
             const Text(
               'Welcome to Palermo Nights!',
               style: TextStyle(fontSize: 20),
@@ -61,12 +144,13 @@ class HomePage extends StatelessWidget {
                   flex: 6,
                   child: ElevatedButton(
                     onPressed: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const LobbyPage(
-                                    gameId: null,
-                                  )));
+                      joinGame();
+                      // Navigator.push(
+                      //     context,
+                      //     MaterialPageRoute(
+                      //         builder: (context) => const LobbyPage(
+                      //               gameId: null,
+                      //             )));
                     },
                     child: const Text('Join a game'),
                   ),
