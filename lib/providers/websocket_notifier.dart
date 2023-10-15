@@ -1,7 +1,7 @@
 // import 'dart:async';
 import 'dart:async';
 import 'dart:convert';
-import 'dart:ffi';
+
 import 'dart:io';
 import 'package:flutter/material.dart';
 // import 'package:provider/provider.dart';
@@ -107,7 +107,7 @@ class Player {
   String? role;
   // ignore: non_constant_identifier_names
   bool? is_alive;
-  Int? vote;
+  int? vote;
 
   Player(this.channel_name, this.username, this.role, this.is_alive, this.vote);
 }

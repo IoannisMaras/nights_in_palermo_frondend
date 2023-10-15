@@ -4,6 +4,7 @@ import 'package:nights_in_palermo/providers/websocket_notifier.dart';
 import 'package:nights_in_palermo/widgets/global/connecting_spinner.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
+import 'package:flutter/foundation.dart';
 
 class LobbyPage extends StatelessWidget {
   final String? gameId;
@@ -14,14 +15,14 @@ class LobbyPage extends StatelessWidget {
   Widget build(BuildContext context) {
     const uuid = Uuid();
     String finalGameId = gameId ?? uuid.v4();
+    String tempGameId = '6a64fcb0-75a7-4528-a69e-791363aca82c';
 
-    // WidgetsBinding.instance.addPostFrameCallback((_) {
-    //   String url = "ws://10.0.2.2::8000/ws/game/$finalGameId/Lerex";
-    //   print(url);
-    //   Provider.of<WebSocketNotifier>(context, listen: false).connect(url);
-    // });
-
-    String url = "ws://10.0.2.2:8000/ws/game/$finalGameId/Lerex/";
+    String url = '';
+    if (kIsWeb) {
+      url = "ws://10.0.2.2:8000/ws/game/$tempGameId/Lerex/";
+    } else {
+      url = "ws://localhost:8000/ws/game/$tempGameId/Lerex/";
+    }
 
     void showErrorBottomSheet(BuildContext context) {
       showModalBottomSheet(
@@ -53,6 +54,32 @@ class LobbyPage extends StatelessWidget {
         },
       );
     }
+
+    void exitLobby(BuildContext context) async {
+      bool areYouSure = await showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Exit Game'),
+          content: const Text('Are you sure you want to exit this game?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('No'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('Yes'),
+            ),
+          ],
+        ),
+      );
+
+      if (areYouSure == true) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          Navigator.pop(context);
+        });
+      }
+    }
     // final websocket = context.read<WebSocketNotifier>();
 
     // Future<bool> isConnected = websocket.connect(url);
@@ -65,24 +92,7 @@ class LobbyPage extends StatelessWidget {
 
     return WillPopScope(
       onWillPop: () async {
-        return await showDialog(
-              context: context,
-              builder: (context) => AlertDialog(
-                title: const Text('Exit Game'),
-                content: const Text('Are you sure you want to exit this game?'),
-                actions: <Widget>[
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(false),
-                    child: const Text('No'),
-                  ),
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(true),
-                    child: const Text('Yes'),
-                  ),
-                ],
-              ),
-            ) ??
-            false;
+        return false;
       },
       child: Scaffold(
         appBar: AppBar(
@@ -134,41 +144,9 @@ class LobbyPage extends StatelessWidget {
             IconButton(
               icon: const Icon(Icons.close),
               tooltip: 'Go back',
-              onPressed: () {
+              onPressed: () async {
                 // Navigator.pop(context);
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return GiffyDialog(
-                      // Image.network(
-                      //   "https://raw.githubusercontent.com/Shashank02051997/FancyGifDialog-Android/master/GIF's/gif14.gif",
-                      //   height: 200,
-                      //   fit: BoxFit.cover,
-                      // ),
-                      giffy: Container(
-                        height: 200,
-                      ),
-                      title: const Text(
-                        'Image Animation',
-                        textAlign: TextAlign.center,
-                      ),
-                      content: const Text(
-                        'This is a image animation dialog box. This library helps you easily create fancy giffy dialog.',
-                        textAlign: TextAlign.center,
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context, 'CANCEL'),
-                          child: const Text('CANCEL'),
-                        ),
-                        TextButton(
-                          onPressed: () => Navigator.pop(context, 'OK'),
-                          child: const Text('OK'),
-                        ),
-                      ],
-                    );
-                  },
-                );
+                exitLobby(context);
               },
             ),
           ],

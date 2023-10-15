@@ -24,40 +24,80 @@ class HomePage extends StatelessWidget {
         // Center is a layout widget. It takes a single child and positions it
         // in the middle of the parent.
         child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
+          //textfeild to add name
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const LobbyPage(
-                              gameId: null,
-                            )));
-              },
-              child: const Text('Create a new game'),
+            const Text(
+              'Welcome to Palermo Nights!',
+              style: TextStyle(fontSize: 20),
             ),
+            const SizedBox(height: 20.0),
+            const Text(
+              'Please enter your name:',
+              style: TextStyle(fontSize: 20),
+            ),
+            const SizedBox(height: 20.0),
+            const SizedBox(
+              width: 200,
+              child: TextField(
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Name',
+                ),
+              ),
+            ),
+            //switch to deside if you want to create or join a game
+            const SizedBox(height: 20.0),
+            const Text(
+              'Do you want to create or join a game?',
+              style: TextStyle(fontSize: 20),
+            ),
+            const SizedBox(height: 20.0),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Expanded(child: Container()),
+                Expanded(
+                  flex: 6,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const LobbyPage(
+                                    gameId: null,
+                                  )));
+                    },
+                    child: const Text('Join a game'),
+                  ),
+                ),
+                Expanded(child: Container()),
+                Expanded(
+                  flex: 6,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const LobbyPage(
+                                    gameId: null,
+                                  )));
+                    },
+                    child: const Text('Create a new game'),
+                  ),
+                ),
+                Expanded(child: Container()),
+              ],
+            ),
+            const SizedBox(height: 20.0),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: () {},
+      //   tooltip: 'Increment',
+      //   child: const Icon(Icons.add),
+      // ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }
