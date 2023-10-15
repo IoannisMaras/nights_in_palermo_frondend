@@ -1,4 +1,5 @@
 // import 'dart:async';
+import 'dart:async';
 import 'dart:convert';
 import 'dart:ffi';
 import 'dart:io';
@@ -13,7 +14,10 @@ class WebSocketNotifier extends ChangeNotifier {
 
   Future<bool> connect(String url) async {
     print(url);
-    _webSocket = await WebSocket.connect(url);
+    _webSocket = await WebSocket.connect(url)
+        .timeout(const Duration(seconds: 15), onTimeout: () {
+      throw TimeoutException('The connection has timed out!');
+    });
     _webSocket!.listen(
       _handleMessage,
       onDone: _handleDone,
