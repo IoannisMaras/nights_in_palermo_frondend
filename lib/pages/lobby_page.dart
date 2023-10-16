@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+// import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:giffy_dialog/giffy_dialog.dart';
@@ -30,7 +31,7 @@ class LobbyPage extends StatelessWidget {
       url = "ws://localhost:8000/ws/game/$finalGameId/Lerex/";
     }
     url =
-        "ws://10.0.2.2:8000/ws/game/6a64fcb0-75a7-4528-a69e-791363aca82c/$username/";
+        "ws://localhost:8000/ws/game/6a64fcb0-75a7-4528-a69e-791363aca82c/$username/";
 
     void showErrorBottomSheet(BuildContext context, String message) {
       showModalBottomSheet(
@@ -56,6 +57,15 @@ class LobbyPage extends StatelessWidget {
           );
         },
       );
+    }
+
+    bool showKickButton(BuildContext context, Player admin) {
+      String username =
+          Provider.of<UsernameProvider>(context, listen: false).username;
+      if (admin.username == username) {
+        return true;
+      }
+      return false;
     }
 
     void exitLobby(BuildContext context) async {
@@ -184,6 +194,7 @@ class LobbyPage extends StatelessWidget {
                   showErrorBottomSheet(context, "Username already taken");
                 });
               } else {
+                print(snapshot.error);
                 WidgetsBinding.instance.addPostFrameCallback((_) {
                   Navigator.pop(context);
                   showErrorBottomSheet(context, "Unknown error");
@@ -205,10 +216,25 @@ class LobbyPage extends StatelessWidget {
                     return ListView(
                       children: count
                           .map((player) => ListTile(
+                                leading: const Icon(Icons.person),
                                 title: Text(player.username),
+                                trailing: !(count[0] == player) &&
+                                        showKickButton(context, count[0])
+                                    ? IconButton(
+                                        icon: const Icon(Icons.close),
+                                        onPressed: () {
+                                          // context
+                                          //     .read<WebSocketNotifier>()
+                                          //     .kickPlayer(player.username);
+                                        },
+                                      )
+                                    : const SizedBox(
+                                        width: 0,
+                                        height: 0,
+                                      ),
                                 //admin as subtitle if it is the first player
-                                subtitle:
-                                    Text(count[0] == player ? 'admin' : ''),
+                                subtitle: Text(
+                                    count[0] == player ? 'ADMIN' : 'waiting'),
                               ))
                           .toList(),
                     );
