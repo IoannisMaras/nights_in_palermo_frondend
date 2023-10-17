@@ -115,7 +115,7 @@ class HomePage extends StatelessWidget {
             const SizedBox(height: 20.0),
             const Text(
               'Welcome to Palermo Nights!',
-              style: TextStyle(fontSize: 20),
+              style: TextStyle(fontSize: 30),
             ),
             const SizedBox(height: 20.0),
             const Text(
@@ -140,7 +140,6 @@ class HomePage extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Container(
-                //width: MediaQuery.of(context).size.width,
                 height: 300,
                 decoration: const BoxDecoration(
                   image: DecorationImage(
@@ -154,7 +153,7 @@ class HomePage extends StatelessWidget {
             //switch to deside if you want to create or join a game
             const SizedBox(height: 20.0),
             const Text(
-              'Do you want to create or join a game?',
+              'Do you want to join or create a game?',
               style: TextStyle(fontSize: 20),
             ),
             const SizedBox(height: 20.0),

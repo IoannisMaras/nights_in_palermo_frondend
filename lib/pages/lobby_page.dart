@@ -3,6 +3,7 @@ import 'dart:io';
 // import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:giffy_dialog/giffy_dialog.dart';
 import 'package:nights_in_palermo/providers/username_provider.dart';
 import 'package:nights_in_palermo/providers/websocket_notifier.dart';
@@ -51,6 +52,32 @@ class LobbyPage extends StatelessWidget {
                 Text(
                   message,
                   style: const TextStyle(fontSize: 18),
+                ),
+              ],
+            ),
+          );
+        },
+      );
+    }
+
+    void showCopySuccessBottomSheet(BuildContext context) {
+      showModalBottomSheet(
+        context: context,
+        builder: (BuildContext context) {
+          return Container(
+            padding: const EdgeInsets.all(20.0),
+            child: const Row(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Icon(
+                  Icons.check,
+                  color: Colors.green,
+                  size: 40.0,
+                ),
+                SizedBox(height: 10.0),
+                Text(
+                  'Room Id has been copied to clipboard',
+                  style: TextStyle(fontSize: 18),
                 ),
               ],
             ),
@@ -194,7 +221,6 @@ class LobbyPage extends StatelessWidget {
                   showErrorBottomSheet(context, "Username already taken");
                 });
               } else {
-                print(snapshot.error);
                 WidgetsBinding.instance.addPostFrameCallback((_) {
                   Navigator.pop(context);
                   showErrorBottomSheet(context, "Unknown error");
@@ -211,36 +237,87 @@ class LobbyPage extends StatelessWidget {
               );
               // return an empty container if you wish to pop immediately
             } else if (snapshot.hasData && snapshot.data == true) {
-              return Selector<WebSocketNotifier, List<Player>>(
-                  builder: (context, count, child) {
-                    return ListView(
-                      children: count
-                          .map((player) => ListTile(
-                                leading: const Icon(Icons.person),
-                                title: Text(player.username),
-                                trailing: !(count[0] == player) &&
-                                        showKickButton(context, count[0])
-                                    ? IconButton(
-                                        icon: const Icon(Icons.close),
-                                        onPressed: () {
-                                          // context
-                                          //     .read<WebSocketNotifier>()
-                                          //     .kickPlayer(player.username);
-                                        },
-                                      )
-                                    : const SizedBox(
-                                        width: 0,
-                                        height: 0,
-                                      ),
-                                //admin as subtitle if it is the first player
-                                subtitle: Text(
-                                    count[0] == player ? 'ADMIN' : 'waiting'),
-                              ))
-                          .toList(),
-                    );
-                  },
-                  selector: (context, counterModel) =>
-                      counterModel.gameState.players);
+              return Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  children: [
+                    const Text(
+                      'Your friends can join with this code:',
+                      style: TextStyle(fontSize: 20),
+                    ),
+                    ElevatedButton(
+                        onPressed: () async {
+                          await Clipboard.setData(
+                              ClipboardData(text: finalGameId));
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            showCopySuccessBottomSheet(context);
+                          });
+                        },
+                        child: Text(
+                          finalGameId,
+                          style: const TextStyle(
+                              //decoration: TextDecoration.underline,
+                              //color: Colors.blue,
+                              ),
+                        )),
+                    const Text("or by scanning this QR code:"),
+                    const Expanded(
+                        child: Padding(
+                      padding: EdgeInsets.all(16.0),
+                      child: Placeholder(
+                        child: AspectRatio(aspectRatio: 1),
+                      ),
+                    )),
+                    Expanded(
+                      flex: 2,
+                      child: Selector<WebSocketNotifier, List<Player>>(
+                          builder: (context, count, child) {
+                            return ListView(
+                              children: count
+                                  .map((player) => Padding(
+                                        padding: const EdgeInsets.fromLTRB(
+                                            24, 8, 24, 8),
+                                        child: ListTile(
+                                          leading: Icon(
+                                            Icons.person,
+                                            color: player.username == username
+                                                ? Colors.green
+                                                : Theme.of(context)
+                                                    .textTheme
+                                                    .bodyLarge
+                                                    ?.color,
+                                          ),
+                                          title: Text(player.username),
+                                          trailing: !(count[0] == player) &&
+                                                  showKickButton(
+                                                      context, count[0])
+                                              ? IconButton(
+                                                  icon: const Icon(Icons.close),
+                                                  onPressed: () {
+                                                    // context
+                                                    //     .read<WebSocketNotifier>()
+                                                    //     .kickPlayer(player.username);
+                                                  },
+                                                )
+                                              : const SizedBox(
+                                                  width: 0,
+                                                  height: 0,
+                                                ),
+                                          //admin as subtitle if it is the first player
+                                          subtitle: Text(count[0] == player
+                                              ? 'ADMIN'
+                                              : 'waiting'),
+                                        ),
+                                      ))
+                                  .toList(),
+                            );
+                          },
+                          selector: (context, counterModel) =>
+                              counterModel.gameState.players),
+                    ),
+                  ],
+                ),
+              );
             } else {
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 Navigator.pop(context);
