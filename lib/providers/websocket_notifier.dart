@@ -10,7 +10,8 @@ class WebSocketNotifier extends ChangeNotifier {
   WebSocket? _webSocket;
   bool isConnected = false;
   String latestMessage = "No message received.";
-  late GameState gameState = GameState("lobby", [], null);
+  GameState gameState = GameState("lobby", [], null);
+  Function(String)? onStateChangeCallback;
 
   Future<bool> connect(String url) async {
     print(url);
@@ -35,8 +36,6 @@ class WebSocketNotifier extends ChangeNotifier {
 
   void _handleMessage(dynamic message) {
     Map<String, dynamic> jsonObject = jsonDecode(message.toString());
-    print(jsonObject);
-    print(jsonObject['type']);
 
     if (jsonObject['type'] == 'player_change') {
       gameState.players = [];
@@ -44,6 +43,8 @@ class WebSocketNotifier extends ChangeNotifier {
         gameState.players.add(Player(player['channel_name'], player['username'],
             player['role'], player['is_alive'], player['vote']));
       }
+    } else if (jsonObject['type'] == 'state_change') {
+      onStateChangeCallback!(jsonObject['state']);
     }
     // if (jsonObject is PlayerChangeEvent) {
     //   print(jsonObject.type);

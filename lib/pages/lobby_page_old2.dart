@@ -1,48 +1,26 @@
 import 'dart:async';
 import 'dart:io';
+// import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:giffy_dialog/giffy_dialog.dart';
-import 'package:nights_in_palermo/pages/game_page.dart';
 import 'package:nights_in_palermo/providers/username_provider.dart';
 import 'package:nights_in_palermo/providers/websocket_notifier.dart';
 import 'package:nights_in_palermo/widgets/global/connecting_spinner.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
+import 'package:flutter/foundation.dart';
 
-class LobbyPage extends StatefulWidget {
+class LobbyPage extends StatelessWidget {
   final String? gameId;
+
   const LobbyPage({Key? key, this.gameId}) : super(key: key);
-
-  @override
-  State<LobbyPage> createState() => _LobbyPageState();
-}
-
-class _LobbyPageState extends State<LobbyPage> {
-  @override
-  void initState() {
-    super.initState();
-    context.read<WebSocketNotifier>().onStateChangeCallback = (state) {
-      if (state == 'game') {
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(
-            builder: (context) =>
-                const GamePage(), // Pass the argument to the new page
-          ),
-          (route) => route
-              .isFirst, // Check if the current route is the first route on the navigator stack
-        );
-      }
-    };
-  }
 
   @override
   Widget build(BuildContext context) {
     const uuid = Uuid();
-    String finalGameId = widget.gameId ?? uuid.v4();
+    String finalGameId = gameId ?? uuid.v4();
     print(finalGameId);
     String username =
         Provider.of<UsernameProvider>(context, listen: false).username;
