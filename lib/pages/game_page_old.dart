@@ -2,14 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:giffy_dialog/giffy_dialog.dart';
 import 'package:speed_dial_fab/speed_dial_fab.dart';
 
-class GamePage extends StatefulWidget {
-  const GamePage({super.key});
+class GamePage extends StatelessWidget {
+  const GamePage({Key? key}) : super(key: key);
 
-  @override
-  State<GamePage> createState() => _GamePageState();
-}
-
-class _GamePageState extends State<GamePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(

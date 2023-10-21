@@ -25,7 +25,12 @@ class _LobbyPageState extends State<LobbyPage> {
   void initState() {
     super.initState();
     context.read<WebSocketNotifier>().onStateChangeCallback = (state) {
-      if (state == 'game') {
+      if (state == 'disconnected') {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          Navigator.pop(context);
+          showErrorBottomSheet(context, "Got Disconnected from the server");
+        });
+      } else if (state == 'game_state_change') {
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(
@@ -37,6 +42,32 @@ class _LobbyPageState extends State<LobbyPage> {
         );
       }
     };
+  }
+
+  void showErrorBottomSheet(BuildContext context, String message) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          padding: const EdgeInsets.all(20.0),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              const Icon(
+                Icons.error,
+                color: Colors.red,
+                size: 40.0,
+              ),
+              const SizedBox(height: 10.0),
+              Text(
+                message,
+                style: const TextStyle(fontSize: 18),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -55,32 +86,6 @@ class _LobbyPageState extends State<LobbyPage> {
     }
     url =
         "ws://localhost:8000/ws/game/6a64fcb0-75a7-4528-a69e-791363aca82c/$username/";
-
-    void showErrorBottomSheet(BuildContext context, String message) {
-      showModalBottomSheet(
-        context: context,
-        builder: (BuildContext context) {
-          return Container(
-            padding: const EdgeInsets.all(20.0),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                const Icon(
-                  Icons.error,
-                  color: Colors.red,
-                  size: 40.0,
-                ),
-                const SizedBox(height: 10.0),
-                Text(
-                  message,
-                  style: const TextStyle(fontSize: 18),
-                ),
-              ],
-            ),
-          );
-        },
-      );
-    }
 
     void showCopySuccessBottomSheet(BuildContext context) {
       showModalBottomSheet(
@@ -108,7 +113,7 @@ class _LobbyPageState extends State<LobbyPage> {
       );
     }
 
-    bool showKickButton(BuildContext context, Player admin) {
+    bool youAreAdmin(BuildContext context, Player admin) {
       String username =
           Provider.of<UsernameProvider>(context, listen: false).username;
       if (admin.username == username) {
@@ -261,84 +266,103 @@ class _LobbyPageState extends State<LobbyPage> {
             } else if (snapshot.hasData && snapshot.data == true) {
               return Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  children: [
-                    const Text(
-                      'Your friends can join with this code:',
-                      style: TextStyle(fontSize: 20),
-                    ),
-                    ElevatedButton(
-                        onPressed: () async {
-                          await Clipboard.setData(
-                              ClipboardData(text: finalGameId));
-                          WidgetsBinding.instance.addPostFrameCallback((_) {
-                            showCopySuccessBottomSheet(context);
-                          });
-                        },
-                        child: Text(
-                          finalGameId,
-                          style: const TextStyle(
-                              //decoration: TextDecoration.underline,
-                              //color: Colors.blue,
-                              ),
-                        )),
-                    const Text("or by scanning this QR code:"),
-                    const Expanded(
-                        child: Padding(
-                      padding: EdgeInsets.all(16.0),
-                      child: Placeholder(
-                        child: AspectRatio(aspectRatio: 1),
-                      ),
-                    )),
-                    Expanded(
-                      flex: 2,
-                      child: Selector<WebSocketNotifier, List<Player>>(
-                          builder: (context, count, child) {
-                            return ListView(
-                              children: count
-                                  .map((player) => Padding(
-                                        padding: const EdgeInsets.fromLTRB(
-                                            24, 8, 24, 8),
-                                        child: ListTile(
-                                          leading: Icon(
-                                            Icons.person,
-                                            color: player.username == username
-                                                ? Colors.green
-                                                : Theme.of(context)
-                                                    .textTheme
-                                                    .bodyLarge
-                                                    ?.color,
+                child: Selector<WebSocketNotifier, List<Player>>(
+                    builder: (context, count, child) {
+                      return Column(
+                        children: [
+                          const Text(
+                            'Your friends can join with this code:',
+                            style: TextStyle(fontSize: 20),
+                          ),
+                          ElevatedButton(
+                              onPressed: () async {
+                                await Clipboard.setData(
+                                    ClipboardData(text: finalGameId));
+                                WidgetsBinding.instance
+                                    .addPostFrameCallback((_) {
+                                  showCopySuccessBottomSheet(context);
+                                });
+                              },
+                              child: Text(
+                                finalGameId,
+                                style: const TextStyle(
+                                    //decoration: TextDecoration.underline,
+                                    //color: Colors.blue,
+                                    ),
+                              )),
+                          const Text("or by scanning this QR code:"),
+                          const Expanded(
+                              child: Padding(
+                            padding: EdgeInsets.all(16.0),
+                            child: Placeholder(
+                              child: AspectRatio(aspectRatio: 1),
+                            ),
+                          )),
+                          Expanded(
+                              flex: 2,
+                              child: ListView(
+                                children: count
+                                    .map((player) => Padding(
+                                          padding: const EdgeInsets.fromLTRB(
+                                              24, 8, 24, 8),
+                                          child: ListTile(
+                                            leading: Icon(
+                                              Icons.person,
+                                              color: player.username == username
+                                                  ? Colors.green
+                                                  : Theme.of(context)
+                                                      .textTheme
+                                                      .bodyLarge
+                                                      ?.color,
+                                            ),
+                                            title: Text(player.username),
+                                            trailing: !(count[0] == player) &&
+                                                    youAreAdmin(
+                                                        context, count[0])
+                                                ? IconButton(
+                                                    icon:
+                                                        const Icon(Icons.close),
+                                                    onPressed: () {
+                                                      // context
+                                                      //     .read<WebSocketNotifier>()
+                                                      //     .kickPlayer(player.username);
+                                                    },
+                                                  )
+                                                : const SizedBox(
+                                                    width: 0,
+                                                    height: 0,
+                                                  ),
+                                            //admin as subtitle if it is the first player
+                                            subtitle: Text(count[0] == player
+                                                ? 'ADMIN'
+                                                : 'waiting'),
                                           ),
-                                          title: Text(player.username),
-                                          trailing: !(count[0] == player) &&
-                                                  showKickButton(
-                                                      context, count[0])
-                                              ? IconButton(
-                                                  icon: const Icon(Icons.close),
-                                                  onPressed: () {
-                                                    // context
-                                                    //     .read<WebSocketNotifier>()
-                                                    //     .kickPlayer(player.username);
-                                                  },
-                                                )
-                                              : const SizedBox(
-                                                  width: 0,
-                                                  height: 0,
-                                                ),
-                                          //admin as subtitle if it is the first player
-                                          subtitle: Text(count[0] == player
-                                              ? 'ADMIN'
-                                              : 'waiting'),
-                                        ),
-                                      ))
-                                  .toList(),
-                            );
-                          },
-                          selector: (context, counterModel) =>
-                              counterModel.gameState.players),
-                    ),
-                  ],
-                ),
+                                        ))
+                                    .toList(),
+                              )),
+                          (youAreAdmin(context, count[0]) && count.length > 4)
+                              ? ElevatedButton(
+                                  onPressed: () {
+                                    context
+                                        .read<WebSocketNotifier>()
+                                        .startGame();
+                                  },
+                                  child: const Padding(
+                                    padding: EdgeInsets.all(8.0),
+                                    child: Text(
+                                      'Start game',
+                                      style: TextStyle(fontSize: 32),
+                                    ),
+                                  ))
+                              : const SizedBox(
+                                  width: 0,
+                                  height: 0,
+                                ),
+                        ],
+                      );
+                    },
+                    selector: (context, counterModel) =>
+                        counterModel.gameState.players),
               );
             } else {
               WidgetsBinding.instance.addPostFrameCallback((_) {

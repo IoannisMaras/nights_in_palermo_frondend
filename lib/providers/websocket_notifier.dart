@@ -43,8 +43,14 @@ class WebSocketNotifier extends ChangeNotifier {
         gameState.players.add(Player(player['channel_name'], player['username'],
             player['role'], player['is_alive'], player['vote']));
       }
-    } else if (jsonObject['type'] == 'state_change') {
-      onStateChangeCallback!(jsonObject['state']);
+    } else if (jsonObject['type'] == 'game_state_change') {
+      onStateChangeCallback!(jsonObject['type']);
+      gameState.state = jsonObject['state'];
+      gameState.players = [];
+      for (var player in jsonObject['all_players']) {
+        gameState.players.add(Player(player['channel_name'], player['username'],
+            player['role'], player['is_alive'], player['vote']));
+      }
     }
     // if (jsonObject is PlayerChangeEvent) {
     //   print(jsonObject.type);
@@ -63,8 +69,8 @@ class WebSocketNotifier extends ChangeNotifier {
   }
 
   void _handleDone() {
-    int? code = _webSocket!.closeCode;
-    print(code);
+    //int? code = _webSocket!.closeCode;
+    onStateChangeCallback!('disconnected');
     isConnected = false;
     notifyListeners();
   }
@@ -76,9 +82,9 @@ class WebSocketNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
-  void sendMessage(String message) {
+  void sendMessage(Object message) {
     if (isConnected) {
-      _webSocket!.add(jsonEncode({"message": message}));
+      _webSocket!.add(jsonEncode(message));
     }
   }
 
@@ -86,6 +92,10 @@ class WebSocketNotifier extends ChangeNotifier {
     _webSocket?.close();
     isConnected = false;
     notifyListeners();
+  }
+
+  void startGame() {
+    sendMessage({"type": "start_game", "message": ""});
   }
 
   @override
