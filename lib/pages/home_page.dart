@@ -173,7 +173,7 @@ class HomePage extends StatelessWidget {
                       //               gameId: null,
                       //             )));
                     },
-                    child: const Text('Join a game'),
+                    child: const Text('Join Game'),
                   ),
                 ),
                 Expanded(child: Container()),
@@ -188,7 +188,7 @@ class HomePage extends StatelessWidget {
                                     gameId: null,
                                   )));
                     },
-                    child: const Text('Create a new game'),
+                    child: const Text('Create Game'),
                   ),
                 ),
                 Expanded(child: Container()),

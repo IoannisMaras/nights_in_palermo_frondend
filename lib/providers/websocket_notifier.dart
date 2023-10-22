@@ -14,7 +14,7 @@ class WebSocketNotifier extends ChangeNotifier {
   Function(String)? onStateChangeCallback;
 
   Future<bool> connect(String url) async {
-    print(url);
+    await Future.delayed(const Duration(seconds: 1));
     _webSocket = await WebSocket.connect(url)
         .timeout(const Duration(seconds: 15), onTimeout: () {
       throw TimeoutException('The connection has timed out!');
@@ -30,7 +30,6 @@ class WebSocketNotifier extends ChangeNotifier {
 
     notifyListeners();
 
-    await Future.delayed(const Duration(seconds: 2));
     return isConnected;
   }
 
@@ -98,6 +97,10 @@ class WebSocketNotifier extends ChangeNotifier {
     sendMessage({"type": "start_game", "message": ""});
   }
 
+  void sendVote(int vote) {
+    sendMessage({"type": "vote_player", "message": vote});
+  }
+
   @override
   void dispose() {
     _webSocket?.close();
@@ -120,7 +123,7 @@ class Player {
   String username;
   String? role;
   // ignore: non_constant_identifier_names
-  bool? is_alive;
+  bool is_alive;
   int? vote;
 
   Player(this.channel_name, this.username, this.role, this.is_alive, this.vote);

@@ -85,7 +85,7 @@ class _LobbyPageState extends State<LobbyPage> {
       url = "ws://localhost:8000/ws/game/$finalGameId/Lerex/";
     }
     url =
-        "ws://localhost:8000/ws/game/6a64fcb0-75a7-4528-a69e-791363aca82c/$username/";
+        "ws://10.0.2.2:8000/ws/game/6a64fcb0-75a7-4528-a69e-791363aca82c/$username/";
 
     void showCopySuccessBottomSheet(BuildContext context) {
       showModalBottomSheet(
