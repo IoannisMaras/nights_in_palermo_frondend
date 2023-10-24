@@ -70,6 +70,7 @@ flutter:
     - assets/images/join_game.jfif
     - assets/images/homepage2.jpg
     - assets/images/vote2.jpg
+    - assets/images/night_state.jpg
 
 
   # An image asset can refer to one or more resolution-specific "variants", see

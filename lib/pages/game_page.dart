@@ -3,6 +3,7 @@ import 'package:giffy_dialog/giffy_dialog.dart';
 import 'package:nights_in_palermo/providers/username_provider.dart';
 import 'package:nights_in_palermo/providers/websocket_notifier.dart';
 import 'package:nights_in_palermo/widgets/game_page/day_state.dart';
+import 'package:nights_in_palermo/widgets/game_page/night_state.dart';
 import 'package:provider/provider.dart';
 import 'package:speed_dial_fab/speed_dial_fab.dart';
 
@@ -109,9 +110,21 @@ class _GamePageState extends State<GamePage> {
         ),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: DayState(username: username, colorScheme: colorScheme),
-      ),
+          padding: const EdgeInsets.all(8.0),
+          child: Selector<WebSocketNotifier, String>(
+              builder: (context, state, child) {
+                if (state == "Day") {
+                  return DayState(
+                    username: username,
+                    colorScheme: colorScheme,
+                  );
+                } else {
+                  return NightState(
+                      username: username, colorScheme: colorScheme);
+                }
+              },
+              selector: (context, counterModel) =>
+                  counterModel.gameState.state)),
       floatingActionButton: SpeedDialFabWidget(
         secondaryIconsList: const [
           Icons.supervised_user_circle,

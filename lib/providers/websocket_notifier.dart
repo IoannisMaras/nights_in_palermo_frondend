@@ -112,7 +112,7 @@ class GameState {
   String state;
   List<Player> players;
   // ignore: non_constant_identifier_names
-  String? story_teller;
+  int? story_teller;
 
   GameState(this.state, this.players, this.story_teller);
 }
