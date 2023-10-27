@@ -16,6 +16,8 @@ class DayState extends StatelessWidget {
   Widget build(BuildContext context) {
     return Selector<WebSocketNotifier, List<Player>>(
         builder: (context, players, child) {
+          List<Player> alive_players =
+              players.where((player) => player.is_alive).toList();
           return Column(
             children: [
               const Text(
@@ -43,14 +45,14 @@ class DayState extends StatelessWidget {
               Expanded(
                 flex: 4,
                 child: ListView.builder(
-                  itemCount: players.length,
+                  itemCount: alive_players.length,
                   itemBuilder: (BuildContext context, int index) {
-                    final List<String> votersForThisPlayer = players
+                    final List<String> votersForThisPlayer = alive_players
                         .where(
                             (player) => player.is_alive && player.vote == index)
                         .map((player) => player.username)
                         .toList();
-                    final int totalVotes = players
+                    final int totalVotes = alive_players
                         .where(
                             (player) => player.is_alive && player.vote != null)
                         .length
@@ -70,12 +72,12 @@ class DayState extends StatelessWidget {
                     return ListTile(
                       tileColor: myVote == index
                           ? colorScheme.secondary.withOpacity(0.3)
-                          : (players[index].is_alive
+                          : (alive_players[index].is_alive
                               ? colorScheme.background
                               : colorScheme.onSurface.withOpacity(0.2)),
                       leading: Text('Suspect: ${index + 1}'),
                       title: Row(children: [
-                        Text(players[index].username),
+                        Text(alive_players[index].username),
                         const SizedBox(width: 8),
                         Text(
                           '(${percentage.toStringAsFixed(1)}%)',
@@ -88,10 +90,11 @@ class DayState extends StatelessWidget {
                       subtitle: votersForThisPlayer.isNotEmpty
                           ? Text('Voted by: ${votersForThisPlayer.join(', ')}')
                           : null,
-                      enabled: players[index].is_alive,
+                      enabled: alive_players[index].is_alive &&
+                          alive_players[index].username != username,
                       trailing: Checkbox(
                         value: myVote == index,
-                        onChanged: players[index].is_alive
+                        onChanged: alive_players[index].is_alive
                             ? (bool? newValue) {
                                 Provider.of<WebSocketNotifier>(context,
                                         listen: false)
@@ -99,7 +102,7 @@ class DayState extends StatelessWidget {
                               }
                             : null,
                       ),
-                      onTap: players[index].is_alive
+                      onTap: alive_players[index].is_alive
                           ? () {
                               //send a message to websocket
                               Provider.of<WebSocketNotifier>(context,
@@ -111,6 +114,47 @@ class DayState extends StatelessWidget {
                   },
                 ),
               ),
+              Selector<WebSocketNotifier, int?>(
+                  builder: (context, storyTellerIndex, child) {
+                    bool allVoted = true;
+                    for (var player in players) {
+                      if (player.vote == null) {
+                        allVoted = false;
+                        break;
+                      }
+                    }
+                    if (!allVoted) {
+                      return const SizedBox(height: 0);
+                    }
+                    if (storyTellerIndex == null) {
+                      if (players[0].username == username) {
+                        return ElevatedButton(
+                          onPressed: () {
+                            //check if all player.vote is not null
+
+                            Provider.of<WebSocketNotifier>(context,
+                                    listen: false)
+                                .sendVote(-1);
+                          },
+                          child: const Text('Finish Voting'),
+                        );
+                      } else {
+                        return const SizedBox(height: 0);
+                      }
+                    } else if (players[storyTellerIndex].username == username) {
+                      return ElevatedButton(
+                        onPressed: () {
+                          Provider.of<WebSocketNotifier>(context, listen: false)
+                              .sendVote(-1);
+                        },
+                        child: const Text('Finish Voting'),
+                      );
+                    } else {
+                      return const SizedBox(height: 0);
+                    }
+                  },
+                  selector: (context, counterModel) =>
+                      counterModel.gameState.story_teller),
             ],
           );
         },
