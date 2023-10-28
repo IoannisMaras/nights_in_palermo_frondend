@@ -30,4 +30,21 @@ class DialogServices {
       });
     }
   }
+
+  static void showInfoDialog(BuildContext context, dynamic message,
+      {String buttonText = "OK"}) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(message['title']),
+        content: Text(message['message']),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(buttonText),
+          ),
+        ],
+      ),
+    );
+  }
 }

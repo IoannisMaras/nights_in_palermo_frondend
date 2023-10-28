@@ -11,7 +11,7 @@ class WebSocketNotifier extends ChangeNotifier {
   bool isConnected = false;
   String latestMessage = "No message received.";
   GameState gameState = GameState("lobby", [], null);
-  Function(String)? onStateChangeCallback;
+  Function(String, String, dynamic)? onStateChangeCallback;
 
   Future<bool> connect(String url) async {
     await Future.delayed(const Duration(seconds: 1));
@@ -35,7 +35,7 @@ class WebSocketNotifier extends ChangeNotifier {
 
   void _handleMessage(dynamic message) {
     Map<String, dynamic> jsonObject = jsonDecode(message.toString());
-
+    print(message.toString());
     if (jsonObject['type'] == 'player_change') {
       gameState.players = [];
       for (var player in jsonObject['all_players']) {
@@ -43,13 +43,15 @@ class WebSocketNotifier extends ChangeNotifier {
             player['role'], player['is_alive'], player['vote']));
       }
     } else if (jsonObject['type'] == 'game_state_change') {
-      onStateChangeCallback!(jsonObject['type']);
+      gameState.story_teller = jsonObject['story_teller'];
       gameState.state = jsonObject['state'];
       gameState.players = [];
       for (var player in jsonObject['all_players']) {
         gameState.players.add(Player(player['channel_name'], player['username'],
             player['role'], player['is_alive'], player['vote']));
       }
+      onStateChangeCallback!(
+          jsonObject['type'], jsonObject['state'], jsonObject['message']);
     }
     // if (jsonObject is PlayerChangeEvent) {
     //   print(jsonObject.type);
@@ -69,7 +71,11 @@ class WebSocketNotifier extends ChangeNotifier {
 
   void _handleDone() {
     //int? code = _webSocket!.closeCode;
-    onStateChangeCallback!('disconnected');
+    if (isConnected == false) {
+      notifyListeners();
+      return;
+    }
+    onStateChangeCallback!('disconnected', '', {});
     isConnected = false;
     notifyListeners();
   }
@@ -88,8 +94,9 @@ class WebSocketNotifier extends ChangeNotifier {
   }
 
   void disconnect() {
-    _webSocket?.close();
     isConnected = false;
+    _webSocket?.close();
+
     notifyListeners();
   }
 

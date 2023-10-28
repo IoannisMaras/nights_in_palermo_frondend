@@ -20,25 +20,20 @@ class _GamePageState extends State<GamePage> {
   @override
   void initState() {
     super.initState();
-    context.read<WebSocketNotifier>().onStateChangeCallback = (state) {
-      if (state == 'disconnected') {
+    context.read<WebSocketNotifier>().onStateChangeCallback =
+        (type, state, message) {
+      if (type == 'disconnected') {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           Navigator.pop(context);
           BottomSheetServices.showErrorBottomSheet(
               context, "Got Disconnected from the server");
         });
-      } else if (state == 'game_state_change') {
-        print(
-            'new state is ${context.read<WebSocketNotifier>().gameState.state}');
-        // Navigator.pushAndRemoveUntil(
-        //   context,
-        //   MaterialPageRoute(
-        //     builder: (context) =>
-        //         const GamePage(), // Pass the argument to the new page
-        //   ),
-        //   (route) => route
-        //       .isFirst, // Check if the current route is the first route on the navigator stack
-        // );
+      } else if (type == 'game_state_change') {
+        if (state == 'Day') {
+          DialogServices.showInfoDialog(context, message);
+        } else if (state == 'Night') {
+          DialogServices.showInfoDialog(context, message);
+        }
       }
     };
   }
@@ -113,6 +108,7 @@ class _GamePageState extends State<GamePage> {
           padding: const EdgeInsets.all(8.0),
           child: Selector<WebSocketNotifier, String>(
               builder: (context, state, child) {
+                print('STATE HAS BEEN CHANGE TO $state');
                 if (state == "Day") {
                   return DayState(
                     username: username,

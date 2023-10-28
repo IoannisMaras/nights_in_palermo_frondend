@@ -102,7 +102,8 @@ class DayState extends StatelessWidget {
                               }
                             : null,
                       ),
-                      onTap: alive_players[index].is_alive
+                      onTap: alive_players[index].is_alive &&
+                              alive_players[index].username != username
                           ? () {
                               //send a message to websocket
                               Provider.of<WebSocketNotifier>(context,

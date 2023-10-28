@@ -17,11 +17,13 @@ class NightState extends StatelessWidget {
   Widget build(BuildContext context) {
     return Selector<WebSocketNotifier, GameState>(
         builder: (context, game, child) {
-          if (game.story_teller != null) {
+          int? storyTellerIndex = game.story_teller;
+          if (storyTellerIndex != null) {
             //IS STORY TELLER
-            if (game.players[game.story_teller as int].username == username) {
+            if (game.players[storyTellerIndex].username == username) {
               return Selector<NightStateStepperProvider, int>(
                   builder: (context, step, child) {
+                    print(step);
                     switch (step) {
                       case 0:
                         return NightStep0(game: game);

@@ -26,14 +26,15 @@ class _LobbyPageState extends State<LobbyPage> {
   @override
   void initState() {
     super.initState();
-    context.read<WebSocketNotifier>().onStateChangeCallback = (state) {
-      if (state == 'disconnected') {
+    context.read<WebSocketNotifier>().onStateChangeCallback =
+        (type, state, message) {
+      if (type == 'disconnected') {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           Navigator.pop(context);
           BottomSheetServices.showErrorBottomSheet(
               context, "Got Disconnected from the server");
         });
-      } else if (state == 'game_state_change') {
+      } else if (type == 'game_state_change') {
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(
