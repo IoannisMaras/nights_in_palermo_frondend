@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:giffy_dialog/giffy_dialog.dart';
 import 'package:nights_in_palermo/providers/username_provider.dart';
 import 'package:nights_in_palermo/providers/websocket_notifier.dart';
+import 'package:nights_in_palermo/services/bottom_sheet_services.dart';
+import 'package:nights_in_palermo/services/dialog_services.dart';
 import 'package:nights_in_palermo/widgets/game_page/day_state.dart';
 import 'package:nights_in_palermo/widgets/game_page/night_state.dart';
 import 'package:provider/provider.dart';
@@ -15,32 +17,30 @@ class GamePage extends StatefulWidget {
 }
 
 class _GamePageState extends State<GamePage> {
-  void exitGame(BuildContext context) async {
-    bool areYouSure = await showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Exit Game'),
-        content: const Text('Are you sure you want to exit this game?'),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('No'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Yes'),
-          ),
-        ],
-      ),
-    );
-
-    if (areYouSure == true) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        Navigator.pop(context);
-        //dicsconnect from the websocket
-        context.read<WebSocketNotifier>().disconnect();
-      });
-    }
+  @override
+  void initState() {
+    super.initState();
+    context.read<WebSocketNotifier>().onStateChangeCallback = (state) {
+      if (state == 'disconnected') {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          Navigator.pop(context);
+          BottomSheetServices.showErrorBottomSheet(
+              context, "Got Disconnected from the server");
+        });
+      } else if (state == 'game_state_change') {
+        print(
+            'new state is ${context.read<WebSocketNotifier>().gameState.state}');
+        // Navigator.pushAndRemoveUntil(
+        //   context,
+        //   MaterialPageRoute(
+        //     builder: (context) =>
+        //         const GamePage(), // Pass the argument to the new page
+        //   ),
+        //   (route) => route
+        //       .isFirst, // Check if the current route is the first route on the navigator stack
+        // );
+      }
+    };
   }
 
   @override
@@ -99,7 +99,7 @@ class _GamePageState extends State<GamePage> {
             icon: const Icon(Icons.close),
             tooltip: 'Go back',
             onPressed: () {
-              exitGame(context);
+              DialogServices.exitGame(context);
             },
           ),
         ],

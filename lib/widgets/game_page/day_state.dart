@@ -134,9 +134,12 @@ class DayState extends StatelessWidget {
 
                             Provider.of<WebSocketNotifier>(context,
                                     listen: false)
-                                .sendVote(-1);
+                                .endVoting();
                           },
-                          child: const Text('Finish Voting'),
+                          child: const Text(
+                            'Finish Voting',
+                            style: TextStyle(fontSize: 32),
+                          ),
                         );
                       } else {
                         return const SizedBox(height: 0);
@@ -145,9 +148,12 @@ class DayState extends StatelessWidget {
                       return ElevatedButton(
                         onPressed: () {
                           Provider.of<WebSocketNotifier>(context, listen: false)
-                              .sendVote(-1);
+                              .endVoting();
                         },
-                        child: const Text('Finish Voting'),
+                        child: const Text(
+                          'Finish Voting',
+                          style: TextStyle(fontSize: 32),
+                        ),
                       );
                     } else {
                       return const SizedBox(height: 0);

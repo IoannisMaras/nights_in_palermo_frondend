@@ -8,6 +8,8 @@ import 'package:giffy_dialog/giffy_dialog.dart';
 import 'package:nights_in_palermo/pages/game_page.dart';
 import 'package:nights_in_palermo/providers/username_provider.dart';
 import 'package:nights_in_palermo/providers/websocket_notifier.dart';
+import 'package:nights_in_palermo/services/bottom_sheet_services.dart';
+import 'package:nights_in_palermo/services/dialog_services.dart';
 import 'package:nights_in_palermo/widgets/global/connecting_spinner.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
@@ -28,7 +30,8 @@ class _LobbyPageState extends State<LobbyPage> {
       if (state == 'disconnected') {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           Navigator.pop(context);
-          showErrorBottomSheet(context, "Got Disconnected from the server");
+          BottomSheetServices.showErrorBottomSheet(
+              context, "Got Disconnected from the server");
         });
       } else if (state == 'game_state_change') {
         Navigator.pushAndRemoveUntil(
@@ -44,32 +47,6 @@ class _LobbyPageState extends State<LobbyPage> {
     };
   }
 
-  void showErrorBottomSheet(BuildContext context, String message) {
-    showModalBottomSheet(
-      context: context,
-      builder: (BuildContext context) {
-        return Container(
-          padding: const EdgeInsets.all(20.0),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              const Icon(
-                Icons.error,
-                color: Colors.red,
-                size: 40.0,
-              ),
-              const SizedBox(height: 10.0),
-              Text(
-                message,
-                style: const TextStyle(fontSize: 18),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     const uuid = Uuid();
@@ -82,10 +59,10 @@ class _LobbyPageState extends State<LobbyPage> {
     if (!kIsWeb) {
       url = "ws://10.0.2.2:8000/ws/game/$finalGameId/$username/";
     } else {
-      url = "ws://localhost:8000/ws/game/$finalGameId/Lerex/";
+      url = "ws://127.0.0.1:8000/ws/game/$finalGameId/Lerex/";
     }
     url =
-        "ws://10.0.2.2:8000/ws/game/6a64fcb0-75a7-4528-a69e-791363aca82c/$username/";
+        "ws://127.0.0.1:8000/ws/game/6a64fcb0-75a7-4528-a69e-791363aca82c/$username/";
 
     void showCopySuccessBottomSheet(BuildContext context) {
       showModalBottomSheet(
@@ -122,33 +99,33 @@ class _LobbyPageState extends State<LobbyPage> {
       return false;
     }
 
-    void exitLobby(BuildContext context) async {
-      bool areYouSure = await showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Exit Game'),
-          content: const Text('Are you sure you want to exit this game?'),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('No'),
-            ),
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(true),
-              child: const Text('Yes'),
-            ),
-          ],
-        ),
-      );
+    // void exitLobby(BuildContext context) async {
+    //   bool areYouSure = await showDialog(
+    //     context: context,
+    //     builder: (context) => AlertDialog(
+    //       title: const Text('Exit Game'),
+    //       content: const Text('Are you sure you want to exit this game?'),
+    //       actions: <Widget>[
+    //         TextButton(
+    //           onPressed: () => Navigator.of(context).pop(false),
+    //           child: const Text('No'),
+    //         ),
+    //         TextButton(
+    //           onPressed: () => Navigator.of(context).pop(true),
+    //           child: const Text('Yes'),
+    //         ),
+    //       ],
+    //     ),
+    //   );
 
-      if (areYouSure == true) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          Navigator.pop(context);
-          //dicsconnect from the websocket
-          context.read<WebSocketNotifier>().disconnect();
-        });
-      }
-    }
+    //   if (areYouSure == true) {
+    //     WidgetsBinding.instance.addPostFrameCallback((_) {
+    //       Navigator.pop(context);
+    //       //dicsconnect from the websocket
+    //       context.read<WebSocketNotifier>().disconnect();
+    //     });
+    //   }
+    // }
     // final websocket = context.read<WebSocketNotifier>();
 
     // Future<bool> isConnected = websocket.connect(url);
@@ -215,7 +192,7 @@ class _LobbyPageState extends State<LobbyPage> {
               tooltip: 'Go back',
               onPressed: () async {
                 // Navigator.pop(context);
-                exitLobby(context);
+                DialogServices.exitGame(context);
               },
             ),
           ],
@@ -235,22 +212,26 @@ class _LobbyPageState extends State<LobbyPage> {
               if (snapshot.error is TimeoutException) {
                 WidgetsBinding.instance.addPostFrameCallback((_) {
                   Navigator.pop(context);
-                  showErrorBottomSheet(context, "Connection timed out");
+                  BottomSheetServices.showErrorBottomSheet(
+                      context, "Connection timed out");
                 });
               } else if (snapshot.error is SocketException) {
                 WidgetsBinding.instance.addPostFrameCallback((_) {
                   Navigator.pop(context);
-                  showErrorBottomSheet(context, "Connection refused");
+                  BottomSheetServices.showErrorBottomSheet(
+                      context, "Connection refused");
                 });
               } else if (snapshot.error is WebSocketException) {
                 WidgetsBinding.instance.addPostFrameCallback((_) {
                   Navigator.pop(context);
-                  showErrorBottomSheet(context, "Username already taken");
+                  BottomSheetServices.showErrorBottomSheet(
+                      context, "Username already taken");
                 });
               } else {
                 WidgetsBinding.instance.addPostFrameCallback((_) {
                   Navigator.pop(context);
-                  showErrorBottomSheet(context, "Unknown error");
+                  BottomSheetServices.showErrorBottomSheet(
+                      context, "Unknown error");
                 });
               }
               // WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -367,7 +348,8 @@ class _LobbyPageState extends State<LobbyPage> {
             } else {
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 Navigator.pop(context);
-                showErrorBottomSheet(context, "Unknown error");
+                BottomSheetServices.showErrorBottomSheet(
+                    context, "Unknown error");
               });
               return const Center(child: Text("Unknown state"));
             }
