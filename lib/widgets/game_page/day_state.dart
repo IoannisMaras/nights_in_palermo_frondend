@@ -18,6 +18,8 @@ class DayState extends StatelessWidget {
         builder: (context, players, child) {
           List<Player> alivePlayers =
               players.where((player) => player.is_alive).toList();
+          Player myPlayer =
+              players.firstWhere((player) => player.username == username);
           return Column(
             children: [
               const Text(
@@ -26,19 +28,21 @@ class DayState extends StatelessWidget {
               ),
               //add an image here
               const SizedBox(height: 20),
-              const Text(
-                'Who do you suspect?',
-                style: TextStyle(fontSize: 20),
+              Text(
+                myPlayer.is_alive ? 'Who do you suspect?' : 'You are dead..',
+                style: const TextStyle(fontSize: 20),
               ),
               const SizedBox(height: 20),
               Container(
                 height: 300,
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   image: DecorationImage(
-                    image: AssetImage("assets/images/vote2.jpg"),
+                    image: myPlayer.is_alive
+                        ? const AssetImage("assets/images/vote2.jpg")
+                        : const AssetImage("assets/images/death.jpg"),
                     fit: BoxFit.cover,
                   ),
-                  borderRadius: BorderRadius.all(Radius.circular(20)),
+                  borderRadius: const BorderRadius.all(Radius.circular(20)),
                 ),
               ),
               const SizedBox(height: 20),
@@ -90,7 +94,7 @@ class DayState extends StatelessWidget {
                       subtitle: votersForThisPlayer.isNotEmpty
                           ? Text('Voted by: ${votersForThisPlayer.join(', ')}')
                           : null,
-                      enabled: alivePlayers[index].is_alive &&
+                      enabled: myPlayer.is_alive &&
                           alivePlayers[index].username != username,
                       trailing: Checkbox(
                         value: myVote == index,
@@ -102,7 +106,7 @@ class DayState extends StatelessWidget {
                               }
                             : null,
                       ),
-                      onTap: alivePlayers[index].is_alive &&
+                      onTap: myPlayer.is_alive &&
                               alivePlayers[index].username != username
                           ? () {
                               //send a message to websocket
