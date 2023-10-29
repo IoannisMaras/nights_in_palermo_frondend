@@ -112,6 +112,10 @@ class WebSocketNotifier extends ChangeNotifier {
     sendMessage({"type": "end_voting", "message": ""});
   }
 
+  void endNight(int index) {
+    sendMessage({"type": "end_night", "message": index});
+  }
+
   @override
   void dispose() {
     _webSocket?.close();

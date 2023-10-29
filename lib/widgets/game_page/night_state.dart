@@ -29,10 +29,12 @@ class NightState extends StatelessWidget {
                         return NightStep0(game: game);
                       case 1:
                         return NightStep1(game: game);
-                      case 3:
-                        return Column(
+                      case 2:
+                        return const Column(
                           children: [],
                         );
+                      case 3:
+                        return NightStep3(game: game);
                       default:
                         return const Center(child: Text('Error'));
                     }
@@ -225,6 +227,108 @@ class NightStep0 extends StatelessWidget {
   }
 }
 
+class NightStep1 extends StatefulWidget {
+  final GameState game;
+
+  const NightStep1({
+    required this.game,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  _NightStep1State createState() => _NightStep1State();
+}
+
+class _NightStep1State extends State<NightStep1> {
+  int? deathIndex;
+  List<Player> alivePlayers = [];
+
+  @override
+  void initState() {
+    super.initState();
+    alivePlayers =
+        widget.game.players.where((player) => player.is_alive).toList();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const Text(
+          'It is Nighttime',
+          style: TextStyle(fontSize: 30),
+        ),
+        // Add an image here
+        const SizedBox(height: 20),
+        const Text(
+          'Please close your eyes',
+          style: TextStyle(fontSize: 20),
+        ),
+        const SizedBox(height: 20),
+        Container(
+          height: 300,
+          decoration: const BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage("assets/images/night_state.jpg"),
+              fit: BoxFit.cover,
+            ),
+            borderRadius: BorderRadius.all(Radius.circular(20)),
+          ),
+        ),
+        const SizedBox(height: 20),
+        Expanded(
+          flex: 4,
+          child: ListView.builder(
+            itemCount: alivePlayers.length,
+            itemBuilder: (BuildContext context, int index) {
+              return ListTile(
+                tileColor: deathIndex == index
+                    ? Theme.of(context).colorScheme.secondary.withOpacity(0.3)
+                    : Theme.of(context).colorScheme.background,
+                leading: Text('Option: ${index + 1}'),
+                title: Text(alivePlayers[index].username),
+                subtitle: index == deathIndex
+                    ? const Text('This player is chosen to die by the Mafia')
+                    : null,
+                trailing: Checkbox(
+                  value: deathIndex == index,
+                  onChanged: (bool? v) {
+                    setState(() {
+                      if (v == true) {
+                        deathIndex = index;
+                      } else {
+                        deathIndex = null;
+                      }
+                    });
+                  },
+                ),
+                onTap: () {
+                  setState(() {
+                    if (deathIndex == index) {
+                      deathIndex = null;
+                    } else {
+                      deathIndex = index;
+                    }
+                  });
+                },
+              );
+            },
+          ),
+        ),
+        ElevatedButton(
+          onPressed: deathIndex != null
+              ? () {
+                  Provider.of<NightStateStepperProvider>(context, listen: false)
+                      .nextStep(widget.game, deathIndex);
+                }
+              : null,
+          child: const Text('Next Step'),
+        ),
+      ],
+    );
+  }
+}
+
 class NightStep3 extends StatelessWidget {
   final GameState game;
   const NightStep3({
@@ -270,96 +374,12 @@ class NightStep3 extends StatelessWidget {
       //button to go the next step
       ElevatedButton(
         onPressed: () {
-          Provider.of<NightStateStepperProvider>(context, listen: false)
-              .nextStep(game, null);
+          Provider.of<WebSocketNotifier>(context, listen: false).endNight(
+              Provider.of<NightStateStepperProvider>(context, listen: false)
+                  .step);
         },
         child: const Text('Next Step'),
       ),
     ]);
-  }
-}
-
-class NightStep1 extends StatelessWidget {
-  final GameState game;
-  const NightStep1({
-    required this.game,
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    int? death_index;
-    List<Player> alive_players =
-        game.players.where((player) => player.is_alive).toList();
-
-    return Column(
-      children: [
-        const Text(
-          'It is Nighttime',
-          style: TextStyle(fontSize: 30),
-        ),
-        //add an image here
-        const SizedBox(height: 20),
-        const Text(
-          'Please close your eyes',
-          style: TextStyle(fontSize: 20),
-        ),
-        const SizedBox(height: 20),
-        Container(
-          height: 300,
-          decoration: const BoxDecoration(
-            image: DecorationImage(
-              image: AssetImage("assets/images/night_state.jpg"),
-              fit: BoxFit.cover,
-            ),
-            borderRadius: BorderRadius.all(Radius.circular(20)),
-          ),
-        ),
-        const SizedBox(height: 20),
-        Expanded(
-          flex: 4,
-          child: ListView.builder(
-            itemCount: alive_players.length,
-            itemBuilder: (BuildContext context, int index) {
-              return ListTile(
-                  tileColor: death_index == index
-                      ? Theme.of(context).colorScheme.secondary.withOpacity(0.3)
-                      : Theme.of(context).colorScheme.background,
-                  leading: Text('Option: ${index + 1}'),
-                  title: Text(alive_players[index].username),
-                  subtitle: index == death_index
-                      ? const Text('This player is chosen to die by the Mafia')
-                      : null,
-                  //enabled: players[index].is_alive,
-                  trailing: Checkbox(
-                      value: death_index == index,
-                      onChanged: (bool? v) {
-                        if (v == true) {
-                          death_index = index;
-                        } else {
-                          death_index = null;
-                        }
-                      }),
-                  onTap: () {
-                    if (death_index == index) {
-                      death_index = null;
-                    } else {
-                      death_index = index;
-                    }
-                  });
-            },
-          ),
-        ),
-        ElevatedButton(
-          onPressed: death_index != null
-              ? () {
-                  Provider.of<NightStateStepperProvider>(context, listen: false)
-                      .nextStep(game, death_index);
-                }
-              : null,
-          child: const Text('Next Step'),
-        ),
-      ],
-    );
   }
 }

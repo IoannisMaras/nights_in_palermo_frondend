@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:giffy_dialog/giffy_dialog.dart';
+import 'package:nights_in_palermo/providers/night_state_stepper.dart';
 import 'package:nights_in_palermo/providers/username_provider.dart';
 import 'package:nights_in_palermo/providers/websocket_notifier.dart';
 import 'package:nights_in_palermo/services/bottom_sheet_services.dart';
@@ -22,6 +23,7 @@ class _GamePageState extends State<GamePage> {
     super.initState();
     context.read<WebSocketNotifier>().onStateChangeCallback =
         (type, state, message) {
+      context.read<NightStateStepperProvider>().resetStep();
       if (type == 'disconnected') {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           Navigator.pop(context);
@@ -109,6 +111,7 @@ class _GamePageState extends State<GamePage> {
           child: Selector<WebSocketNotifier, String>(
               builder: (context, state, child) {
                 print('STATE HAS BEEN CHANGE TO $state');
+
                 if (state == "Day") {
                   return DayState(
                     username: username,

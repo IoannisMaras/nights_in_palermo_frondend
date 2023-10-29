@@ -16,7 +16,7 @@ class DayState extends StatelessWidget {
   Widget build(BuildContext context) {
     return Selector<WebSocketNotifier, List<Player>>(
         builder: (context, players, child) {
-          List<Player> alive_players =
+          List<Player> alivePlayers =
               players.where((player) => player.is_alive).toList();
           return Column(
             children: [
@@ -45,14 +45,14 @@ class DayState extends StatelessWidget {
               Expanded(
                 flex: 4,
                 child: ListView.builder(
-                  itemCount: alive_players.length,
+                  itemCount: alivePlayers.length,
                   itemBuilder: (BuildContext context, int index) {
-                    final List<String> votersForThisPlayer = alive_players
+                    final List<String> votersForThisPlayer = alivePlayers
                         .where(
                             (player) => player.is_alive && player.vote == index)
                         .map((player) => player.username)
                         .toList();
-                    final int totalVotes = alive_players
+                    final int totalVotes = alivePlayers
                         .where(
                             (player) => player.is_alive && player.vote != null)
                         .length
@@ -72,12 +72,12 @@ class DayState extends StatelessWidget {
                     return ListTile(
                       tileColor: myVote == index
                           ? colorScheme.secondary.withOpacity(0.3)
-                          : (alive_players[index].is_alive
+                          : (alivePlayers[index].is_alive
                               ? colorScheme.background
                               : colorScheme.onSurface.withOpacity(0.2)),
                       leading: Text('Suspect: ${index + 1}'),
                       title: Row(children: [
-                        Text(alive_players[index].username),
+                        Text(alivePlayers[index].username),
                         const SizedBox(width: 8),
                         Text(
                           '(${percentage.toStringAsFixed(1)}%)',
@@ -90,11 +90,11 @@ class DayState extends StatelessWidget {
                       subtitle: votersForThisPlayer.isNotEmpty
                           ? Text('Voted by: ${votersForThisPlayer.join(', ')}')
                           : null,
-                      enabled: alive_players[index].is_alive &&
-                          alive_players[index].username != username,
+                      enabled: alivePlayers[index].is_alive &&
+                          alivePlayers[index].username != username,
                       trailing: Checkbox(
                         value: myVote == index,
-                        onChanged: alive_players[index].is_alive
+                        onChanged: alivePlayers[index].is_alive
                             ? (bool? newValue) {
                                 Provider.of<WebSocketNotifier>(context,
                                         listen: false)
@@ -102,8 +102,8 @@ class DayState extends StatelessWidget {
                               }
                             : null,
                       ),
-                      onTap: alive_players[index].is_alive &&
-                              alive_players[index].username != username
+                      onTap: alivePlayers[index].is_alive &&
+                              alivePlayers[index].username != username
                           ? () {
                               //send a message to websocket
                               Provider.of<WebSocketNotifier>(context,

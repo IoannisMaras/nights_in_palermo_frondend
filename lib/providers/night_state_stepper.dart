@@ -3,13 +3,18 @@ import 'package:nights_in_palermo/providers/websocket_notifier.dart';
 
 class NightStateStepperProvider extends ChangeNotifier {
   int _step = 0;
-  int _voted_index = 0;
+  int _votedIndex = 0;
 
   int get step => _step;
-  int get votedIndex => _voted_index;
+  int get votedIndex => _votedIndex;
 
   void setStep(int value) {
     _step = value;
+    notifyListeners();
+  }
+
+  void resetStep() {
+    _step = 0;
     notifyListeners();
   }
 
@@ -28,13 +33,13 @@ class NightStateStepperProvider extends ChangeNotifier {
         _step = 2;
       } else {
         if (index != null) {
-          _voted_index = index;
+          _votedIndex = index;
         }
         _step = 3;
       }
     } else if (_step == 2) {
       if (index != null) {
-        _voted_index = index;
+        _votedIndex = index;
       }
       _step = 3;
     }
