@@ -96,16 +96,18 @@ class DayState extends StatelessWidget {
                           : null,
                       enabled: myPlayer.is_alive &&
                           alivePlayers[index].username != username,
-                      trailing: Checkbox(
-                        value: myVote == index,
-                        onChanged: alivePlayers[index].is_alive
-                            ? (bool? newValue) {
-                                Provider.of<WebSocketNotifier>(context,
-                                        listen: false)
-                                    .sendVote(index);
-                              }
-                            : null,
-                      ),
+                      trailing: myPlayer.is_alive
+                          ? Checkbox(
+                              value: myVote == index,
+                              onChanged: alivePlayers[index].is_alive
+                                  ? (bool? newValue) {
+                                      Provider.of<WebSocketNotifier>(context,
+                                              listen: false)
+                                          .sendVote(index);
+                                    }
+                                  : null,
+                            )
+                          : null,
                       onTap: myPlayer.is_alive &&
                               alivePlayers[index].username != username
                           ? () {
