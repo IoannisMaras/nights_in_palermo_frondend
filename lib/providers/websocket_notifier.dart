@@ -35,7 +35,7 @@ class WebSocketNotifier extends ChangeNotifier {
 
   void _handleMessage(dynamic message) {
     Map<String, dynamic> jsonObject = jsonDecode(message.toString());
-    print(message.toString());
+    // print(message.toString());
     if (jsonObject['type'] == 'player_change') {
       gameState.players = [];
       for (var player in jsonObject['all_players']) {
