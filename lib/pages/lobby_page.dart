@@ -23,6 +23,8 @@ class LobbyPage extends StatefulWidget {
 }
 
 class _LobbyPageState extends State<LobbyPage> {
+  bool isDialogShowing = false;
+
   @override
   void initState() {
     super.initState();
@@ -30,6 +32,9 @@ class _LobbyPageState extends State<LobbyPage> {
         (type, state, message) {
       if (type == 'disconnected') {
         WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (isDialogShowing) {
+            Navigator.pop(context);
+          }
           Navigator.pop(context);
           BottomSheetServices.showErrorBottomSheet(
               context, "Got Disconnected from the server");
@@ -52,7 +57,6 @@ class _LobbyPageState extends State<LobbyPage> {
   Widget build(BuildContext context) {
     const uuid = Uuid();
     String finalGameId = widget.gameId ?? uuid.v4();
-    print(finalGameId);
     String username =
         Provider.of<UsernameProvider>(context, listen: false).username;
 
@@ -64,32 +68,6 @@ class _LobbyPageState extends State<LobbyPage> {
     }
     url =
         "ws://127.0.0.1:8000/ws/game/6a64fcb0-75a7-4528-a69e-791363aca82c/$username/";
-
-    void showCopySuccessBottomSheet(BuildContext context) {
-      showModalBottomSheet(
-        context: context,
-        builder: (BuildContext context) {
-          return Container(
-            padding: const EdgeInsets.all(20.0),
-            child: const Row(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                Icon(
-                  Icons.check,
-                  color: Colors.green,
-                  size: 40.0,
-                ),
-                SizedBox(height: 10.0),
-                Text(
-                  'Room Id has been copied to clipboard',
-                  style: TextStyle(fontSize: 18),
-                ),
-              ],
-            ),
-          );
-        },
-      );
-    }
 
     bool youAreAdmin(BuildContext context, Player admin) {
       String username =
@@ -192,8 +170,8 @@ class _LobbyPageState extends State<LobbyPage> {
               icon: const Icon(Icons.close),
               tooltip: 'Go back',
               onPressed: () async {
-                // Navigator.pop(context);
-                DialogServices.exitGame(context);
+                isDialogShowing = true;
+                isDialogShowing = await DialogServices.exitGame(context);
               },
             ),
           ],
@@ -262,7 +240,8 @@ class _LobbyPageState extends State<LobbyPage> {
                                     ClipboardData(text: finalGameId));
                                 WidgetsBinding.instance
                                     .addPostFrameCallback((_) {
-                                  showCopySuccessBottomSheet(context);
+                                  BottomSheetServices
+                                      .showCopySuccessBottomSheet(context);
                                 });
                               },
                               child: Text(

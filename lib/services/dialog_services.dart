@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
 
 class DialogServices {
-  static void exitGame(BuildContext context) async {
+  static Future<bool> exitGame(BuildContext context) async {
     bool areYouSure = await showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -30,6 +30,8 @@ class DialogServices {
         context.read<WebSocketNotifier>().disconnect();
       });
     }
+
+    return false;
   }
 
   // static int _countLetters(String text) {
@@ -41,9 +43,9 @@ class DialogServices {
   //   return count;
   // }
 
-  static void showInfoDialog(BuildContext context, dynamic message,
-      {String buttonText = "OK"}) {
-    showDialog(
+  static Future<bool> showInfoDialog(BuildContext context, dynamic message,
+      {String buttonText = "OK"}) async {
+    await showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: Column(
@@ -80,5 +82,8 @@ class DialogServices {
         ],
       ),
     );
+    return false;
   }
+
+  static void showRoleDialog() {}
 }

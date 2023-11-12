@@ -18,23 +18,32 @@ class GamePage extends StatefulWidget {
 }
 
 class _GamePageState extends State<GamePage> {
+  bool isDialogShowing = false;
+
   @override
   void initState() {
     super.initState();
     context.read<WebSocketNotifier>().onStateChangeCallback =
-        (type, state, message) {
+        (type, state, message) async {
       context.read<NightStateStepperProvider>().resetStep();
       if (type == 'disconnected') {
         WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (isDialogShowing) {
+            Navigator.pop(context);
+          }
           Navigator.pop(context);
           BottomSheetServices.showErrorBottomSheet(
               context, "Got Disconnected from the server");
         });
       } else if (type == 'game_state_change') {
         if (state == 'Day') {
-          DialogServices.showInfoDialog(context, message);
+          isDialogShowing = true;
+          isDialogShowing =
+              await DialogServices.showInfoDialog(context, message);
         } else if (state == 'Night') {
-          DialogServices.showInfoDialog(context, message);
+          isDialogShowing = true;
+          isDialogShowing =
+              await DialogServices.showInfoDialog(context, message);
         }
       }
     };
@@ -95,8 +104,9 @@ class _GamePageState extends State<GamePage> {
           IconButton(
             icon: const Icon(Icons.close),
             tooltip: 'Go back',
-            onPressed: () {
-              DialogServices.exitGame(context);
+            onPressed: () async {
+              isDialogShowing = true;
+              isDialogShowing = await DialogServices.exitGame(context);
             },
           ),
         ],
